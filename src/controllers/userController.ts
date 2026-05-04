@@ -1,6 +1,8 @@
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import type { RequestHandler } from "express";
+import { sendResetEmail } from "../services/mailServices.js";
 import userModel from "../models/userModel.js";
 
 const add: RequestHandler = async (req, res, next) => {
@@ -109,4 +111,45 @@ const logout: RequestHandler = (req, res, next) => {
     res.status(200).json({message: "Déconnexion réussie"});
 };
 
-export default { add, login, getMe, logout };
+const forgotPassword: RequestHandler = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        const user = await userModel.findByEmail(email);
+
+        if (!user) {
+            res.status(200).json({ message: "Si cet email existe, un lien a été envoyé." });
+            return;
+        }
+
+        const token = crypto.randomBytes(32).toString("hex");
+        const expires = new Date(Date.now() + 3600000);
+
+        await userModel.updateResetToken(email, token, expires);
+        await sendResetEmail(email, token);
+
+        res.status(200).json({ message: "Email de réinitialisation envoyé" });
+    } catch (err) {
+        next(err);
+    }
+};
+
+const resetPassword: RequestHandler = async (req, res, next) => {
+    try {
+        const { token, newPassword } = req.body;
+        const user = await userModel.findByResetToken(token);
+
+        if (!user) { 
+            res.status (400).json({message: "Token invalide ou éxpiré."});
+            return;
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await userModel.updatePasswordd(user.id, hashedPassword);
+
+        res.status(200).json({ message: "Mot de passe réinitialisé avec succès" });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export default { add, login, getMe, logout, forgotPassword, resetPassword };

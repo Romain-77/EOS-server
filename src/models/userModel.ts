@@ -49,7 +49,32 @@ class UserModel {
         [userId]
     );
     return result;
+    }
+
+    async updateResetToken(email: string, token: string | null, expires: Date | null): Promise<ResultSetHeader> {
+        const [result] = await db.query<ResultSetHeader>(
+            `UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE email = ?`,
+            [token, expires, email]
+        );
+        return result;
+    }
+
+    async findByResetToken(token: string): Promise<UserRow | null> {
+        const [rows] = await db.query<UserRow[]>(
+            `SELECT * FROM users WHERE reset_token = ? AND reset_token_expires > NOW()`,
+            [token]
+        );
+        return rows.length > 0 ? rows[0] : null;
+    }
+
+    async updatePasswordd(userId: number, password: string): Promise<ResultSetHeader> {
+        const [result] = await db.query<ResultSetHeader>(
+            `UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?`,
+            [password, userId]
+        );
+        return result;
+    }
 }
-}
+
 
 export default new UserModel();
