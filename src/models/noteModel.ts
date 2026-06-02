@@ -28,7 +28,7 @@ async readAllByUserId(userId: number) {
          n.created_at AS createdAt,
          c.name as categoryName 
          FROM notes n 
-         JOIN categories c ON n.category_id = c.id 
+         LEFT JOIN categories c ON n.category_id = c.id 
          WHERE n.user_id = ?`,
         [userId]
     );

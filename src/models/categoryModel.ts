@@ -16,7 +16,7 @@ class CategoryModel  {
 
     async readAll(userId: number): Promise<Category[]> {
         const [rows] = await db.query<CategoryRow[]>(
-            'SELECT id, name FROM categories WHERE user_id = ? ORDER BY name ASC',
+            'SELECT id, name FROM categories WHERE user_id = ? OR user_id IS NULL ORDER BY name ASC',
             [userId]
         );
 

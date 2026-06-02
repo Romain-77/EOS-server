@@ -24,7 +24,7 @@ class StatModel {
          FROM categories c 
          LEFT JOIN category_stats s ON c.id = s.category_id 
          AND s.recorded_at = CURDATE() AND s.user_id = ?
-         WHERE c.user_id = ?`,
+         WHERE c.user_id = ? OR c.user_id IS NULL`,
         [userId, userId]
         );
         return rows as CategoryWithStats[];
