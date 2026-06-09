@@ -4,12 +4,12 @@ import streakModel from "../models/streakModel.js";
 const getStreak: RequestHandler = async (req, res, next) => {
     try {
         if (!req.auth) {
-            res.status(401).json({message: "non autorisé"});
+            res.status(401).json({message: "Non autorisé"});
             return;
         }
         const userId = req.auth.userId;
-    const streakData = await streakModel.getStreak(userId);
-res.json(streakData);
+        const streakData = await streakModel.getStreak(userId);
+        res.json(streakData);
     } catch (err) {
         next(err);
     }

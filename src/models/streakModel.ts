@@ -9,7 +9,7 @@ class StreakModel {
             `SELECT DISTINCT DATE(date_activity) as activity_date FROM (
             SELECT created_at AS date_activity FROM notes WHERE user_id = ? 
             Union 
-            SELECT recorder_at AS date_activity FROM category_stats WHERE user_id = ?
+            SELECT recorded_at AS date_activity FROM category_stats WHERE user_id = ?
         ) as activities
          ORDER BY activity_date DESC`,
          [userId, userId]
