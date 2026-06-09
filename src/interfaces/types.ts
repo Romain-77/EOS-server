@@ -1,3 +1,5 @@
+import type { RowDataPacket } from "mysql2";
+
 export interface Category {
     id: number;
     name: string;
@@ -23,4 +25,13 @@ export interface CategoryStat {
 export interface CategoryWithStats extends Category {
     targetScore: number;
     currentScore?: number;
+}
+
+export interface StreakActivityRow extends RowDataPacket {
+    activity_date: string | Date; 
+}
+
+export interface StreakResponse {
+    currentStreak: number;
+    activeToday: boolean;   
 }

@@ -1,15 +1,16 @@
-import db from "../db.js";
+import db from "../config/db.js";
+import type { StreakActivityRow, StreakResponse } from "../interfaces/types.js";
 
 class StreakModel {
-    async getStreak(userId: number): Promise<{currentStreak: number; activeToday: boolean}> {
+    async getStreak(userId: number): Promise<StreakResponse> {
 
-        const [rows] = await db.query (
-             //Récupère toutes les dates uniques où l'utilisateur a soit écrit une note, soit coché un score
+        const [rows] = await db.query<StreakActivityRow[]>(
+             //Récupère toutes les dates où l'utilisateur a soit écrit une note, soit coché un score
             `SELECT DISTINCT DATE(date_activity) as activity_date FROM (
             SELECT created_at AS date_activity FROM notes WHERE user_id = ? 
             Union 
             SELECT recorder_at AS date_activity FROM category_stats WHERE user_id = ?
-        ) as activities)
+        ) as activities
          ORDER BY activity_date DESC`,
          [userId, userId]
         );
@@ -56,8 +57,9 @@ class StreakModel {
         } else {
             break; //Si un jour manque, alors la boucle s'arrête.
         }
+    }
         return {currentStreak, activeToday: hasActivityToday};  
     }
     }
-    
+
 export default new StreakModel();
